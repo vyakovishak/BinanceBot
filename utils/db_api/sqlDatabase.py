@@ -46,6 +46,7 @@ class Database:
         tokenB varchar(255),
         dollarAmount varchar(255),
         crossExchange varchar(255),
+        adminRights int(255),
         PRIMARY KEY (ids)
         );"""
         self.execute(sql, commit=True)
@@ -58,10 +59,11 @@ class Database:
                  tokenA: str = None,
                  tokenB: str = None,
                  dollarAmount: float = None,
-                 crossExchange: str = None):
+                 crossExchange: str = None,
+                 adminRights: int = 0):
 
         SQL_COMMAND = "INSERT INTO Users(ids, created, name, username, time, tokenA, tokenB, " \
-                      "dollarAmount, crossExchange ) VALUES(?,?,?,?,?,?,?,?,?) "
+                      "dollarAmount, crossExchange,adminRights ) VALUES(?,?,?,?,?,?,?,?,?,?) "
 
         parameters = (ids,
                       created,
@@ -71,7 +73,8 @@ class Database:
                       tokenA,
                       tokenB,
                       dollarAmount,
-                      crossExchange)
+                      crossExchange,
+                      adminRights)
 
         self.execute(SQL_COMMAND, parameters=parameters, commit=True)
 
@@ -118,14 +121,18 @@ class Database:
 
     def delete_user(self, user_ids):
         SQL_COMMAND = "DELETE FROM Users WHERE ids=?"
-        self.execute(SQL_COMMAND, parameters=(user_ids,), commit=True)
+        return self.execute(SQL_COMMAND, parameters=(user_ids,), commit=True)
 
     def update_user(self, user_ids, time, TokenA, TokenB, DollarAmount):
         SQL_COMMAND = "UPDATE Users SET time=? , TokenA=? , TokenB=? , DollarAmount=?  WHERE ids=?"
         return self.execute(SQL_COMMAND, parameters=(time, TokenA, TokenB, DollarAmount, user_ids), commit=True)
 
+    def makeAdmin(self, adminRights, user_ids):
+        SQL_COMMAND = "UPDATE Users SET adminRights=? WHERE ids=?"
+        return self.execute(SQL_COMMAND, parameters=(adminRights, user_ids), commit=True)
+
     def delete_all_users(self):
-        self.execute("DELETE FROM Users WHERE True")
+        return self.execute("DELETE FROM Users WHERE True")
 
 
 def logger(statement):

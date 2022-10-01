@@ -17,3 +17,5 @@ class ProfileUpdate(StatesGroup):
     updateTokenB = State()
     updateDollarAmount = State()
     finalUpdate = State()
+    notAdmin = State()
+    Admin = State()
