@@ -14,7 +14,7 @@ async def startUpdateUserTime(message: types.Message):
                              "1d - 1 day")
         await ProfileUpdate.updateUserTime.set()
     else:
-        await message.answer("You not authorise to use this bot!")
+        await message.answer("Your not in my database!")
 
 
 @dp.message_handler(state=ProfileUpdate.updateUserTime)
@@ -33,7 +33,7 @@ async def startUpdateUserTokenA(message: types.Message):
         await message.answer("Send me a token A Symbol(Exp. USDT, USDC, BUSD, etc..")
         await ProfileUpdate.updateTokenA.set()
     else:
-        await message.answer("You not authorise to use this bot!")
+        await message.answer("Your not in my database!")
 
 
 @dp.message_handler(state=ProfileUpdate.updateTokenA)
@@ -52,7 +52,7 @@ async def startUpdateUserTokenB(message: types.Message):
         await message.answer("Send me a token B Symbol(Exp. USDT, USDC, BUSD, etc..")
         await ProfileUpdate.updateTokenB.set()
     else:
-        await message.answer("You not authorise to use this bot!")
+        await message.answer("Your not in my database!")
 
 
 @dp.message_handler(state=ProfileUpdate.updateTokenB)
@@ -71,7 +71,7 @@ async def startUpdateUserDollarAmount(message: types.Message):
         await message.answer("Send me new trading amount")
         await ProfileUpdate.updateDollarAmount.set()
     else:
-        await message.answer("You not authorise to use this bot!")
+        await message.answer("Your not in my database!")
 
 
 @dp.message_handler(state=ProfileUpdate.updateDollarAmount)
@@ -86,19 +86,22 @@ async def endUpdateUserDollarAmount(message: types.Message, state: FSMContext):
 @dp.message_handler(commands="my")
 async def showUserProfile(message: types.Message):
     user_id = message.from_user.id
-    if db.select_user(ids=user_id)[9] != 0 or user_id == 936590877:
-        user = db.select_user(ids=user_id)
-        await message.answer(f"<b>ID:</b> {user[0]}\n"
-                             f"<b>Created At:</b> {user[1]}\n"
-                             f"<b>Name:</b> {user[2]}\n"
-                             f"<b>Username:</b> {user[3]}\n"
-                             f"<b>Time:</b> {user[4]}\n"
-                             f"<b>Token A:</b> {user[5]}\n"
-                             f"<b>Token B:</b> {user[6]}\n"
-                             f"<b>Dollar Amount:</b> {user[7]}\n"
-                             f"<b>Cross Exchange:</b> {user[8]}\n")
-    else:
-        await message.answer("You not authorise to use this bot!")
+    try:
+        if db.select_user(ids=user_id)[9] != 0 or user_id == 936590877:
+            user = db.select_user(ids=user_id)
+            await message.answer(f"<b>ID:</b> {user[0]}\n"
+                                 f"<b>Created At:</b> {user[1]}\n"
+                                 f"<b>Name:</b> {user[2]}\n"
+                                 f"<b>Username:</b> {user[3]}\n"
+                                 f"<b>Time:</b> {user[4]}\n"
+                                 f"<b>Token A:</b> {user[5]}\n"
+                                 f"<b>Token B:</b> {user[6]}\n"
+                                 f"<b>Dollar Amount:</b> {user[7]}\n"
+                                 f"<b>Cross Exchange:</b> {user[8]}\n")
+        else:
+            await message.answer("You not authorise to use this bot!")
+    except:
+        await message.answer("Your not in my database!")
 
 
 @dp.message_handler(commands="myid")

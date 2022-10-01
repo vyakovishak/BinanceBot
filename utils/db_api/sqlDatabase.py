@@ -132,7 +132,7 @@ class Database:
         return self.execute(SQL_COMMAND, parameters=(adminRights, user_ids), commit=True)
 
     def delete_all_users(self):
-        return self.execute("DELETE FROM Users WHERE True")
+        return self.execute("DELETE FROM Users WHERE True", commit=True)
 
 
 def logger(statement):

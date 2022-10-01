@@ -12,24 +12,29 @@ async def bot_start(message: types.Message):
     if db.select_user(ids=user_id) is not None or user_id == 936590877:
         await message.answer(f'Hello, {message.from_user.full_name}!')
     else:
-        await message.answer("You not authorise to use this bot!")
+        await message.answer("You not authorise to use this bot!\n"
+                             "Ask admin to add you and send him your id\n"
+                             "You can get your ID by typing this command /myid")
 
 
 @dp.message_handler(Command("setup"))
 async def setup_user_profile_question(message: types.Message):
     user_id = message.from_user.id
-    if db.select_user(ids=user_id)[9] != 0 or user_id == 936590877:
-        await message.answer("Before you can use this bot let's set it up first!\n"
-                             "How offend you want to get updates?\n"
-                             "Please follow this format number and type\n"
-                             "Example:"
-                             "1m - 1 minute\n"
-                             "1h - 1 hour\n"
-                             "1d - 1 day")
+    try:
+        if db.select_user(ids=user_id)[9] != 0 or user_id == 936590877:
+            await message.answer("Before you can use this bot let's set it up first!\n"
+                                 "How offend you want to get updates?\n"
+                                 "Please follow this format number and type\n"
+                                 "Example:"
+                                 "1m - 1 minute\n"
+                                 "1h - 1 hour\n"
+                                 "1d - 1 day")
 
-        await ProfileSetup.userTime.set()
-    else:
-        await message.answer("You not authorise to use this bot!")
+            await ProfileSetup.userTime.set()
+        else:
+            await message.answer("You not authorise to use this bot!")
+    except:
+        await message.answer("Your not in my database!")
     # await ProfileSetup.first()
 
 
