@@ -120,6 +120,10 @@ class Database:
         SQL_COMMAND = "DELETE FROM Users WHERE ids=?"
         self.execute(SQL_COMMAND, parameters=(user_ids,), commit=True)
 
+    def update_user(self, user_ids, time, TokenA, TokenB, DollarAmount):
+        SQL_COMMAND = "UPDATE Users SET time=? , TokenA=? , TokenB=? , DollarAmount=?  WHERE ids=?"
+        return self.execute(SQL_COMMAND, parameters=(time, TokenA, TokenB, DollarAmount, user_ids), commit=True)
+
     def delete_all_users(self):
         self.execute("DELETE FROM Users WHERE True")
 
