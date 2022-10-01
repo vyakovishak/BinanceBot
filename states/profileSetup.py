@@ -9,3 +9,11 @@ class ProfileSetup(StatesGroup):
     dollarAmount = State()
     crossExchange = State()
     final = State()
+
+
+class ProfileUpdate(StatesGroup):
+    updateUserTime = State()
+    updateTokenA = State()
+    updateTokenB = State()
+    updateDollarAmount = State()
+    finalUpdate = State()
