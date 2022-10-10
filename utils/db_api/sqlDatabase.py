@@ -131,6 +131,10 @@ class Database:
         SQL_COMMAND = "UPDATE Users SET adminRights=? WHERE ids=?"
         return self.execute(SQL_COMMAND, parameters=(adminRights, user_ids), commit=True)
 
+    def updateUsernameAndFullname(self, username, name, user_ids):
+        SQL_COMMAND = "UPDATE Users SET username=?, name=? WHERE ids=?"
+        return self.execute(SQL_COMMAND, parameters=(username, name, user_ids), commit=True)
+
     def delete_all_users(self):
         return self.execute("DELETE FROM Users WHERE True", commit=True)
 

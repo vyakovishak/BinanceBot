@@ -16,7 +16,7 @@ async def add_user(message: types.Message):
             userId = message.get_args()
             try:
                 db.add_user(ids=userId, created=now.strftime("%d/%m/%Y %H:%M:%S"), name=None, username=None, time=None,
-                            adminRights=1 if user_id == 936590877 else 0)
+                            adminRights=0)
                 await message.answer("User was added!")
             except Exception as e:
                 print(e)

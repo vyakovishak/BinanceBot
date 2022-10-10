@@ -1,7 +1,6 @@
 from aiogram import types
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.builtin import CommandStart, Command
-from datetime import datetime
 from loader import dp, db
 from states import ProfileSetup
 
@@ -11,6 +10,9 @@ async def bot_start(message: types.Message):
     user_id = message.from_user.id
     if db.select_user(ids=user_id) is not None or user_id == 936590877:
         await message.answer(f'Hello, {message.from_user.full_name}!')
+        username = message.from_user.username
+        fullName = message.from_user.full_name
+        db.updateUsernameAndFullname(username, fullName, user_id)
     else:
         await message.answer("You not authorise to use this bot!\n"
                              "Ask admin to add you and send him your id\n"

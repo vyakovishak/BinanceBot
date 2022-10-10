@@ -1,0 +1,17 @@
+pastPairs = []
+
+A > B{ B > A{ A > B }}
+0/1
+A/B
+PUT IN PASTPAIRS
+pastPairs = ["A/B"]
+q     b
+usdt/xrp 1000 for 1$
+xrp/usdt 1000 for 1.10
+
+SECOND LOOP FOR B
+CHECK IF B AND NEXT PAIR == FOR LOOP IN PASTPAIRS
+IF B/A EXIST IN pairsPast
+pass
+if not
+add B/A to pairsPast
