@@ -1,7 +1,14 @@
+import logging
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from aiogram import types
 from aiogram.dispatcher import FSMContext
-from loader import dp, db
+from aiogram.types import CallbackQuery
+from utils.scheduleHandler import updateTradingData, on_shutdown
+from keyboards.inline.callback_data import yan_callback
+from keyboards.inline.yes_no_buttons import yea_and_no_choice
+from loader import dp, db, bot
 from states.profileSetup import ProfileUpdate
+from app import scheduler
 
 
 @dp.message_handler(commands="time")
@@ -34,6 +41,51 @@ async def startUpdateUserTokenA(message: types.Message):
         await ProfileUpdate.updateTokenA.set()
     else:
         await message.answer("Your not in my database!")
+
+
+@dp.message_handler(commands="update")
+async def startUpdateUserTokenA(message: types.Message):
+    user_id = message.from_user.id
+    userData = db.select_user(ids=user_id)
+    if userData is not None:
+        if userData[10] == "Y":
+            await message.answer(text="You want me to stop sending you updates?", reply_markup=yea_and_no_choice)
+        else:
+            await message.answer(text="You want me to start sending you updates?", reply_markup=yea_and_no_choice)
+    else:
+        await message.answer("Your not in my database!")
+
+
+@dp.callback_query_handler(yan_callback.filter(choice_name="Yes"))
+async def yes_or_no(call: CallbackQuery, callback_data: dict):
+    await call.answer()
+
+    if db.select_user(ids=call.message.chat.id)[10] == "Y":
+        db.update_updateMeStatus("N", call.message.chat.id)
+    else:
+        db.update_updateMeStatus("Y", call.message.chat.id)
+    await on_shutdown(scheduler)
+    await updateTradingData(bot, scheduler)
+    await call.message.edit_text("Update will not longer be send to you until you enable update again!")
+
+
+@dp.callback_query_handler(yan_callback.filter(choice_name="No"))
+async def yes_or_no(call: CallbackQuery, callback_data: dict):
+    await call.answer()
+    value = callback_data.get("value")
+    if db.select_user(ids=call.message.chat.id)[10] == "N":
+        db.update_updateMeStatus("Y", call.message.chat.id)
+    else:
+        db.update_updateMeStatus("N", call.message.chat.id)
+    await on_shutdown(scheduler)
+    await updateTradingData(bot, scheduler)
+    await call.message.edit_text("Updates resume!!")
+
+
+@dp.callback_query_handler(yan_callback.filter(choice_name="Cancel"))
+async def yes_or_no(call: CallbackQuery, callback_data: dict):
+    await call.answer()
+    await call.bot.delete_message(chat_id=call.message.chat.id, message_id=call.message.message_id)
 
 
 @dp.message_handler(state=ProfileUpdate.updateTokenA)
@@ -97,6 +149,7 @@ async def showUserProfile(message: types.Message):
                                  f"<b>Token A:</b> {user[5]}\n"
                                  f"<b>Token B:</b> {user[6]}\n"
                                  f"<b>Dollar Amount:</b> {user[7]}\n"
+                                 f"<b>Updates: </b>{'On' if user[10] == 'Y' else 'Off'}\n"
                                  f"<b>Cross Exchange:</b> {user[8]}\n")
         else:
             await message.answer("You not authorise to use this bot!")

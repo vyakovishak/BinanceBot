@@ -47,6 +47,7 @@ class Database:
         dollarAmount varchar(255),
         crossExchange varchar(255),
         adminRights int(255),
+        keepMeUpdate varchar(255),
         PRIMARY KEY (ids)
         );"""
         self.execute(sql, commit=True)
@@ -60,10 +61,11 @@ class Database:
                  tokenB: str = None,
                  dollarAmount: float = None,
                  crossExchange: str = None,
-                 adminRights: int = 0):
+                 adminRights: int = 0,
+                 keepMeUpdate: str = "Y"):
 
         SQL_COMMAND = "INSERT INTO Users(ids, created, name, username, time, tokenA, tokenB, " \
-                      "dollarAmount, crossExchange,adminRights ) VALUES(?,?,?,?,?,?,?,?,?,?) "
+                      "dollarAmount, crossExchange,adminRights,keepMeUpdate ) VALUES(?,?,?,?,?,?,?,?,?,?,?) "
 
         parameters = (ids,
                       created,
@@ -74,13 +76,18 @@ class Database:
                       tokenB,
                       dollarAmount,
                       crossExchange,
-                      adminRights)
+                      adminRights,
+                      keepMeUpdate)
 
         self.execute(SQL_COMMAND, parameters=parameters, commit=True)
 
     def select_all_users(self):
         SQL_COMMAND = "SELECT * FROM Users"
         return self.execute(SQL_COMMAND, fetchall=True)
+
+    def update_updateMeStatus(self, status, user_id):
+        SQL_COMMAND = "UPDATE Users SET keepMeUpdate=? WHERE ids=?"
+        return self.execute(SQL_COMMAND, parameters=(status, user_id), commit=True)
 
     @staticmethod
     def format_args(SQL_COMMAND, parameters: dict):
@@ -96,8 +103,16 @@ class Database:
         SQL_COMMAND, parameters = self.format_args(SQL_COMMAND, kwargs)
         return self.execute(SQL_COMMAND, parameters=parameters, fetchone=True)
 
+    def select_users(self, **kwargs):
+        SQL_COMMAND = "SELECT * FROM Users WHERE"
+        SQL_COMMAND, parameters = self.format_args(SQL_COMMAND, kwargs)
+        return self.execute(SQL_COMMAND, parameters=parameters, fetchall=True)
+
     def count_users(self):
         return self.execute("SELECT COUNT(*) FROM Users;", fetchone=True)
+
+    def select_all_users(self):
+        return self.execute("SELECT * FROM Users;", fetchall=True)
 
     def update_Time(self, time, user_ids):
         SQL_COMMAND = "UPDATE Users SET Time=? WHERE ids=?"

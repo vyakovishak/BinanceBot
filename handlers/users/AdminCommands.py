@@ -19,14 +19,13 @@ async def add_user(message: types.Message):
                             adminRights=0)
                 await message.answer("User was added!")
             except Exception as e:
-                print(e)
                 if "UNIQUE constraint failed: Users.ids" == str(e):
                     await message.answer("User was been added before!")
                 else:
                     await message.answer("There was a error on sever side! \n Contact admin for help!")
         else:
             await message.answer("You can't add new members! \nask admin for help.")
-    except:
+    except Exception as a:
         if user_id == 936590877:
             await message.answer("Hello admin again, let me add you to database!")
             db.add_user(ids=936590877, created=now.strftime("%d/%m/%Y %H:%M:%S"), name=None, username=None, time=None,
@@ -38,6 +37,7 @@ async def add_user(message: types.Message):
 @dp.message_handler(commands="su")
 async def show_users(message: types.Message):
     callerID = message.from_user.id
+    print(db.select_user(ids=callerID))
     try:
         if db.select_user(ids=callerID)[9] != 0:
             users = db.select_all_users()
@@ -51,6 +51,7 @@ async def show_users(message: types.Message):
                                      f"<b>Token B:</b> {user[6]}\n"
                                      f"<b>Dollar Amount:</b> {user[7]}\n"
                                      f"<b>Cross Exchange:</b> {user[8]}\n"
+                                     f"<b>Updates: </b>{'On' if user[10] == 'Y' else 'Off'}\n"
                                      f"<b>Admin:</b> {'No' if user[9] == 0 else 'Yes'}\n"
                                      f"----------------------------------" for user in users)
             await message.answer(printString)

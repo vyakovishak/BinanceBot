@@ -1,17 +1,72 @@
-pastPairs = []
+Get Volume
 
-A > B{ B > A{ A > B }}
-0/1
-A/B
-PUT IN PASTPAIRS
-pastPairs = ["A/B"]
-q     b
-usdt/xrp 1000 for 1$
-xrp/usdt 1000 for 1.10
+This request get buy and sell minits
 
-SECOND LOOP FOR B
-CHECK IF B AND NEXT PAIR == FOR LOOP IN PASTPAIRS
-IF B/A EXIST IN pairsPast
-pass
-if not
-add B/A to pairsPast
+aks == buy
+sell == bids
+
+headers = {
+    'Host': 'www.binance.com',
+    # Requests sorts cookies= alphabetically
+    # 'Cookie': 'bnc-uuid=77c9b834-709e-4bbb-8389-56dc0b2b5268; source=organic; campaign=www.google.com; sensorsdata2015jssdkcross=%7B%22distinct_id%22%3A%22522511644%22%2C%22first_id%22%3A%22183e9d4cf47500-0be477f55315fb8-c505425-3686400-183e9d4cf481631%22%2C%22props%22%3A%7B%22%24latest_traffic_source_type%22%3A%22%E8%87%AA%E7%84%B6%E6%90%9C%E7%B4%A2%E6%B5%81%E9%87%8F%22%2C%22%24latest_search_keyword%22%3A%22%E6%9C%AA%E5%8F%96%E5%88%B0%E5%80%BC%22%2C%22%24latest_referrer%22%3A%22https%3A%2F%2Fwww.google.com%2F%22%7D%2C%22identities%22%3A%22eyIkaWRlbnRpdHlfY29va2llX2lkIjoiMTgzZTlkNGNmNDc1MDAtMGJlNDc3ZjU1MzE1ZmI4LWM1MDU0MjUtMzY4NjQwMC0xODNlOWQ0Y2Y0ODE2MzEiLCIkaWRlbnRpdHlfbG9naW5faWQiOiI1MjI1MTE2NDQifQ%3D%3D%22%2C%22history_login_id%22%3A%7B%22name%22%3A%22%24identity_login_id%22%2C%22value%22%3A%22522511644%22%7D%2C%22%24device_id%22%3A%22183e9d4cf47500-0be477f55315fb8-c505425-3686400-183e9d4cf481631%22%7D; sajssdk_2015_cross_new_user=1; userPreferredCurrency=USD_USD; BNC_FV_KEY=33413692f01daa6f87aaf61040aa8ff02df764c9; BNC_FV_KEY_EXPIRE=1666096982044; fiat-prefer-currency=EUR; se_sd=FlSEFAQkGBKCQFQ5WDgogZZVAU1QJETUlEMJbWkJFdUVAAFNXV0M1; se_gd=xUWFhUB8KBXFBYRdSFBUgZZBlVRoEBTUlAWJbWkJFdUVAVlNXVwR1; se_gsd=VjElLytlJjonI1ooJAw2GjYyDAhSAQMIWVtBVFFRVVdSJ1NS1; gtId=94bddbc4-4816-45a7-9f97-fe9d3e71cf4b; s9r1=2E9D3215E3DAC7107215BEC40B145886; d1og=web.522511644.299C9B392D25A0D8962E168FECD74FD0; r2o1=web.522511644.CD3256E5852936CB8E085CDE86283C89; f30l=web.522511644.3DF0C88317412E5234DFC8EA99ABEA33; cr00=DC7048E419E74BDECABA4990066720E2; logined=y; BNC-Location=; __BNC_USER_DEVICE_ID__={"26cfb0dc4bbac14ad0fbc04850a934fe":{"date":1666075618532,"value":"1666075618533YZgyZRejWwzKtkoprfA"}}; p20t=web.522511644.09EF21656E93D4BC7CFAF65DC578A6C3; monitor-uuid=e48e9852-5e68-43aa-a0bd-8997c54dae79; lang=en',
+    'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:105.0) Gecko/20100101 Firefox/105.0',
+    'accept': '*/*',
+    'accept-language': 'en-US,en;q=0.5',
+    'referer': 'https://www.binance.com/en/trade/1INCH_BTC',
+    'lang': 'en',
+    'x-ui-request-trace': '92bd519c-8a22-482c-bf1b-e7f67839f0fa',
+    'x-trace-id': '92bd519c-8a22-482c-bf1b-e7f67839f0fa',
+    'bnc-uuid': '77c9b834-709e-4bbb-8389-56dc0b2b5268',
+    'content-type': 'application/json',
+    'device-info': 'eyJzY3JlZW5fcmVzb2x1dGlvbiI6IjI1NjAsMTQ0MCIsImF2YWlsYWJsZV9zY3JlZW5fcmVzb2x1dGlvbiI6IjI1NjAsMTM5MiIsInN5c3RlbV92ZXJzaW9uIjoiV2luZG93cyAxMCIsImJyYW5kX21vZGVsIjoidW5rbm93biIsInN5c3RlbV9sYW5nIjoiZW4tVVMiLCJ0aW1lem9uZSI6IkdNVC00IiwidGltZXpvbmVPZmZzZXQiOjI0MCwidXNlcl9hZ2VudCI6Ik1vemlsbGEvNS4wIChXaW5kb3dzIE5UIDEwLjA7IFdpbjY0OyB4NjQ7IHJ2OjEwNS4wKSBHZWNrby8yMDEwMDEwMSBGaXJlZm94LzEwNS4wIiwibGlzdF9wbHVnaW4iOiJQREYgVmlld2VyLENocm9tZSBQREYgVmlld2VyLENocm9taXVtIFBERiBWaWV3ZXIsTWljcm9zb2Z0IEVkZ2UgUERGIFZpZXdlcixXZWJLaXQgYnVpbHQtaW4gUERGIiwiY2FudmFzX2NvZGUiOiJkNTlkOWQyZCIsIndlYmdsX3ZlbmRvciI6Ikdvb2dsZSBJbmMuIChOVklESUEpIiwid2ViZ2xfcmVuZGVyZXIiOiJBTkdMRSAoTlZJRElBLCBOVklESUEgR2VGb3JjZSBHVFggOTgwIERpcmVjdDNEMTEgdnNfNV8wIHBzXzVfMCkiLCJhdWRpbyI6IjM1LjczODMyOTU5MzA5MjIiLCJwbGF0Zm9ybSI6IldpbjMyIiwid2ViX3RpbWV6b25lIjoiRXRjL0dNVCs0IiwiZGV2aWNlX25hbWUiOiJGaXJlZm94IFYxMDUuMCAoV2luZG93cykiLCJmaW5nZXJwcmludCI6ImRjN2QyNjdhNGNjZTM2MWU0YjFhNWI4MGUwODkwYjNkIiwiZGV2aWNlX2lkIjoiIiwicmVsYXRlZF9kZXZpY2VfaWRzIjoiMTY2NjA3NTYxODUzM1laZ3laUmVqV3d6S3Rrb3ByZkEifQ==',
+    'clienttype': 'web',
+    'fvideo-id': '33413692f01daa6f87aaf61040aa8ff02df764c9',
+    'csrftoken': '4c39fe497daf3132b875760bf7332327',
+    'dnt': '1',
+    'sec-fetch-dest': 'empty',
+    'sec-fetch-mode': 'cors',
+    'sec-fetch-site': 'same-origin',
+    # Requests doesn't support trailers
+    # 'te': 'trailers',
+}
+
+params = {
+    'symbol': '1INCHBTC',
+    'limit': '1000',
+}
+
+response = requests.get('https://www.binance.com/api/v3/depth', params=params, cookies=cookies, headers=headers)
+
+This request get volume
+headers = {
+    'Host': 'www.binance.com',
+    # Requests sorts cookies= alphabetically
+    # 'Cookie': 'bnc-uuid=77c9b834-709e-4bbb-8389-56dc0b2b5268; source=organic; campaign=www.google.com; sensorsdata2015jssdkcross=%7B%22distinct_id%22%3A%22522511644%22%2C%22first_id%22%3A%22183e9d4cf47500-0be477f55315fb8-c505425-3686400-183e9d4cf481631%22%2C%22props%22%3A%7B%22%24latest_traffic_source_type%22%3A%22%E8%87%AA%E7%84%B6%E6%90%9C%E7%B4%A2%E6%B5%81%E9%87%8F%22%2C%22%24latest_search_keyword%22%3A%22%E6%9C%AA%E5%8F%96%E5%88%B0%E5%80%BC%22%2C%22%24latest_referrer%22%3A%22https%3A%2F%2Fwww.google.com%2F%22%7D%2C%22identities%22%3A%22eyIkaWRlbnRpdHlfY29va2llX2lkIjoiMTgzZTlkNGNmNDc1MDAtMGJlNDc3ZjU1MzE1ZmI4LWM1MDU0MjUtMzY4NjQwMC0xODNlOWQ0Y2Y0ODE2MzEiLCIkaWRlbnRpdHlfbG9naW5faWQiOiI1MjI1MTE2NDQifQ%3D%3D%22%2C%22history_login_id%22%3A%7B%22name%22%3A%22%24identity_login_id%22%2C%22value%22%3A%22522511644%22%7D%2C%22%24device_id%22%3A%22183e9d4cf47500-0be477f55315fb8-c505425-3686400-183e9d4cf481631%22%7D; sajssdk_2015_cross_new_user=1; userPreferredCurrency=USD_USD; BNC_FV_KEY=33413692f01daa6f87aaf61040aa8ff02df764c9; BNC_FV_KEY_EXPIRE=1666096982044; fiat-prefer-currency=EUR; se_sd=FlSEFAQkGBKCQFQ5WDgogZZVAU1QJETUlEMJbWkJFdUVAAFNXV0M1; se_gd=xUWFhUB8KBXFBYRdSFBUgZZBlVRoEBTUlAWJbWkJFdUVAVlNXVwR1; se_gsd=VjElLytlJjonI1ooJAw2GjYyDAhSAQMIWVtBVFFRVVdSJ1NS1; gtId=94bddbc4-4816-45a7-9f97-fe9d3e71cf4b; s9r1=2E9D3215E3DAC7107215BEC40B145886; d1og=web.522511644.299C9B392D25A0D8962E168FECD74FD0; r2o1=web.522511644.CD3256E5852936CB8E085CDE86283C89; f30l=web.522511644.3DF0C88317412E5234DFC8EA99ABEA33; cr00=DC7048E419E74BDECABA4990066720E2; logined=y; BNC-Location=; __BNC_USER_DEVICE_ID__={"26cfb0dc4bbac14ad0fbc04850a934fe":{"date":1666075618532,"value":"1666075618533YZgyZRejWwzKtkoprfA"}}; p20t=web.522511644.09EF21656E93D4BC7CFAF65DC578A6C3; monitor-uuid=e48e9852-5e68-43aa-a0bd-8997c54dae79; lang=en',
+    'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:105.0) Gecko/20100101 Firefox/105.0',
+    'accept': '*/*',
+    'accept-language': 'en-US,en;q=0.5',
+    'referer': 'https://www.binance.com/en/trade/1INCH_BTC',
+    'lang': 'en',
+    'x-ui-request-trace': 'eb0ca2f8-ce81-4de6-baff-1d7969e88c10',
+    'x-trace-id': 'eb0ca2f8-ce81-4de6-baff-1d7969e88c10',
+    'bnc-uuid': '77c9b834-709e-4bbb-8389-56dc0b2b5268',
+    'content-type': 'application/json',
+    'device-info': 'eyJzY3JlZW5fcmVzb2x1dGlvbiI6IjI1NjAsMTQ0MCIsImF2YWlsYWJsZV9zY3JlZW5fcmVzb2x1dGlvbiI6IjI1NjAsMTM5MiIsInN5c3RlbV92ZXJzaW9uIjoiV2luZG93cyAxMCIsImJyYW5kX21vZGVsIjoidW5rbm93biIsInN5c3RlbV9sYW5nIjoiZW4tVVMiLCJ0aW1lem9uZSI6IkdNVC00IiwidGltZXpvbmVPZmZzZXQiOjI0MCwidXNlcl9hZ2VudCI6Ik1vemlsbGEvNS4wIChXaW5kb3dzIE5UIDEwLjA7IFdpbjY0OyB4NjQ7IHJ2OjEwNS4wKSBHZWNrby8yMDEwMDEwMSBGaXJlZm94LzEwNS4wIiwibGlzdF9wbHVnaW4iOiJQREYgVmlld2VyLENocm9tZSBQREYgVmlld2VyLENocm9taXVtIFBERiBWaWV3ZXIsTWljcm9zb2Z0IEVkZ2UgUERGIFZpZXdlcixXZWJLaXQgYnVpbHQtaW4gUERGIiwiY2FudmFzX2NvZGUiOiJkNTlkOWQyZCIsIndlYmdsX3ZlbmRvciI6Ikdvb2dsZSBJbmMuIChOVklESUEpIiwid2ViZ2xfcmVuZGVyZXIiOiJBTkdMRSAoTlZJRElBLCBOVklESUEgR2VGb3JjZSBHVFggOTgwIERpcmVjdDNEMTEgdnNfNV8wIHBzXzVfMCkiLCJhdWRpbyI6IjM1LjczODMyOTU5MzA5MjIiLCJwbGF0Zm9ybSI6IldpbjMyIiwid2ViX3RpbWV6b25lIjoiRXRjL0dNVCs0IiwiZGV2aWNlX25hbWUiOiJGaXJlZm94IFYxMDUuMCAoV2luZG93cykiLCJmaW5nZXJwcmludCI6ImRjN2QyNjdhNGNjZTM2MWU0YjFhNWI4MGUwODkwYjNkIiwiZGV2aWNlX2lkIjoiIiwicmVsYXRlZF9kZXZpY2VfaWRzIjoiMTY2NjA3NTYxODUzM1laZ3laUmVqV3d6S3Rrb3ByZkEifQ==',
+    'clienttype': 'web',
+    'fvideo-id': '33413692f01daa6f87aaf61040aa8ff02df764c9',
+    'csrftoken': '4c39fe497daf3132b875760bf7332327',
+    'dnt': '1',
+    'sec-fetch-dest': 'empty',
+    'sec-fetch-mode': 'cors',
+    'sec-fetch-site': 'same-origin',
+    # Requests doesn't support trailers
+    # 'te': 'trailers',
+}
+
+params = {
+    'limit': '1000',
+    'symbol': '1INCHBTC',
+    'interval': '1d',
+}
+
+response = requests.get('https://www.binance.com/api/v3/uiKlines', params=params, cookies=cookies, headers=headers)

@@ -1,6 +1,10 @@
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+
+from utils import updateTradingData
 from utils.db_api.sqlDatabase import Database
 from utils.set_bot_commands import set_default_commands
-from loader import db
+from loader import db, bot
+scheduler = AsyncIOScheduler()
 
 async def on_startup(dp):
     import filters
@@ -12,6 +16,15 @@ async def on_startup(dp):
     from utils.notify_admins import on_startup_notify
     await on_startup_notify(dp)
     await set_default_commands(dp)
+
+    await updateTradingData(bot, scheduler)
+    try:
+        scheduler.start()
+        await dp.start_polling()
+    finally:
+        await dp.storage.close()
+        await dp.storage.wait_closed()
+        await bot.session.close()
 
 
 if __name__ == '__main__':
