@@ -1,13 +1,21 @@
 import asyncio
+import json
+import random
 from datetime import datetime, timedelta
 from urllib.error import HTTPError
-
+import binance
+import aiohttp
 import pandas as pd
 from aiohttp import ClientSession
+from requests.auth import HTTPProxyAuth
+
+from utils.ExchangeApi import pairsNames
+from utils.ExchangeApi.Binance_Functions import main
 
 
 class BinanceAPI:
     def __init__(self, pairs: list, time: str, userParameter: str):
+        self.proxies = self.proxyLoader()
         self.pairs = pairs
         self.time = time
         self.userParameter = userParameter
@@ -17,30 +25,54 @@ class BinanceAPI:
         self.URL = None
         self.requestParams = None
         self.finalData = []
+        self.proxySatus = None
+        self.badRequestCounter = 0
 
     async def getData(self):
-
         async with ClientSession() as session:
+            # await asyncio.sleep(random.randrange(30, 60))
             await asyncio.gather(*[self.requestTokenData(pair, session) for pair in self.pairs])
 
-        print(self.finalData)
+        sorted(self.finalData)
+        maybeIdontKnow = {}
+        for pairDo in self.pairs[0]:
+                for pairDone in self.finalData:
+                    if pairDo == pairDone['symbol']:
+                        maybeIdontKnow.update({"symbol": pairDone["symbol"],
+                                               "price": pairDone["price"],
+                                               "volume": pairDone["volume"],
+                                               "quoteVolume": pairDone["quoteVolume"],
+                                               "openTime": pairDone["openTime"],
+                                               "closeTime": pairDone["closeTime"]})
+                        break
+        print(maybeIdontKnow)
 
     def setParameters(self):
-        if self.userParameter == "volume":
-            self.URL = "https://www.binance.com/api/v3/uiKlines"
+        if self.userParameter == "ticker":
+            self.URL = "https://www.binance.com/api/v3/ticker"
             self.requestParams = {
-                'limit': '100',
-                'symbol': self.pairSymbol,
-                'interval': self.time,
+                'type': 'MINI',
+                'symbols': str(self.pairSymbol).replace("'", '"').replace(" ", ""),
+                'windowSize': self.time,
             }
-        elif self.userParameter == "price":
-            pass
 
     def respondCheck(self):
         if self.requestRespond is not None:
-            self.filterUIKlinesResponse()
-            self.filterVolume()
-            
+            if self.userParameter == "ticker":
+                self.winTicker()
+            elif self.userParameter == "UIKlines":
+                self.filterUIKlinesResponse()
+                self.filterVolume()
+
+    def winTicker(self):
+        for pair in self.requestRespond:
+            self.finalData.append({"symbol": pair["symbol"],
+                                   "price": pair["lastPrice"],
+                                   "volume": pair["volume"],
+                                   "quoteVolume": pair["quoteVolume"],
+                                   "openTime": pd.to_datetime(pair["openTime"], unit='ms'),
+                                   "closeTime": pd.to_datetime(pair["closeTime"], unit='ms')})
+
     def filterUIKlinesResponse(self) -> object:
         filteredData = {}
         data = []
@@ -80,21 +112,52 @@ class BinanceAPI:
     async def requestTokenData(self, pair, session):
         self.pairSymbol = pair
         self.setParameters()
+        auth = aiohttp.BasicAuth("gbismarc", "zm6cg75gmr7l")
+        session.proxies = await self.proxyHandel()
+        if self.badRequestCounter < 1:
+            try:
+                response = await session.request(method='GET', url=self.URL, params=self.requestParams, auth=auth)
+                response.raise_for_status()
+                self.requestRespond = await response.json()
+            except Exception as err:
+                print(f"An error occurred: {err} waiting 30 secounds")
+                self.badRequestCounter = self.badRequestCounter + 1
+                await asyncio.sleep(30)
+                await self.requestTokenData(pair, session)
+            self.respondCheck()
 
-        try:
-            response = await session.request(method='GET', url=self.URL, params=self.requestParams)
-            response.raise_for_status()
-        except HTTPError as http_err:
-            print(f"HTTP error occurred: {http_err}")
-        except Exception as err:
-            print(f"An error occurred: {err}")
+    async def proxyHandel(self):
+        counter = 0
+        for proxy in list(self.proxies.keys()):
+            if not self.proxies[proxy] > 10:
+                # print(f"Using this proxy {proxy} and count is {self.proxies[proxy]}")
+                self.proxies[proxy] = self.proxies[proxy] + 1
+                return {"http": proxy}
+            elif len(list(self.proxies.keys())) <= counter:
+                print("Resetting proxy")
+                for status in list(self.proxies.keys()):
+                    self.proxies[status] = 0
+                    await asyncio.sleep(15)
+            counter = counter + 1
 
-        self.requestRespond = await response.json()
-        self.respondCheck()
+    @staticmethod
+    def proxyLoader():
+        with open("proxy.txt", "r") as p:
+            proxies = p.readlines()
+        proxiesDic = {}
+        for proxy in proxies:
+            splitedProxy = proxy.split(":")
+            ip = splitedProxy[0]
+            port = splitedProxy[1]
+            proxiesDic.update({f"{ip}:{port}": 0})
+        print(f"{len(proxies)} proxy loaded!")
+        # print(proxiesDic)
+        return proxiesDic
 
 
-obj = BinanceAPI(["CHESSBTC", "CHESSBTC", "CHESSBTC"], "1m", "volume")
-asyncio.run(obj.getData())
+# pair = main()
+# print(len(pair))
+asyncio.run(BinanceAPI([['APEAUD', 'AUDIOUSDT', 'BTCUSDT', 'CHESSUSDT']], "30m", "ticker").getData())
 
 trade = {
     "1": {
