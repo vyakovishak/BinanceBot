@@ -1,6 +1,6 @@
 import os
 
-BOT_TOKEN = str("5715470295:AAGLbx4bRzDrNvXXSpuW3u9IHEg3BJf8qxA")
+BOT_TOKEN = str("API_KEY")
 
 ip = os.getenv("ip")
 
